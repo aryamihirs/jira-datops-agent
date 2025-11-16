@@ -2,6 +2,12 @@
 
 An intelligent automation platform for DataOps and MLOps teams to streamline JIRA ticket creation from multiple communication channels.
 
+## 🎥 Demo Video
+
+[![Watch Demo](https://img.youtube.com/vi/x1k2PHS9W8A/0.jpg)](https://youtu.be/x1k2PHS9W8A)
+
+**[▶️ Watch the Demo on YouTube](https://youtu.be/x1k2PHS9W8A)**
+
 ## Features
 
 - **Multi-Channel Monitoring**: Email, Slack, file system integration
