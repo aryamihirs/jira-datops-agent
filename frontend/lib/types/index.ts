@@ -7,19 +7,21 @@ export type ConnectionStatus = 'connected' | 'disconnected' | 'error';
 export type ConnectionType = 'jira' | 'email' | 'slack' | 'confluence' | 'file_system';
 
 export interface Request {
-  id: string;
-  title: string;
+  id: number;
+  summary: string;
   description: string;
-  source: string;
-  sender: string;
-  priority: RequestPriority;
-  status: RequestStatus;
-  confidence: number;
-  confidenceLevel: ConfidenceLevel;
-  extractedFields: ExtractedFields;
-  originalContent: string;
-  createdAt: string;
-  hasPII: boolean;
+  status: string;
+  source_tag: string;
+  source_content?: any;
+  acceptance_criteria?: string;
+  requestor?: string;
+  assignee?: string;
+  business_unit?: string;
+  tags?: string[];
+  jira_issue_key?: string;
+  released_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ExtractedFields {
@@ -50,13 +52,17 @@ export interface ActivityItem {
 }
 
 export interface Connection {
-  id: string;
+  id: number;
   type: ConnectionType;
   name: string;
-  status: ConnectionStatus;
-  lastSync?: string;
-  config?: Record<string, any>;
-  errorMessage?: string;
+  status: string; // 'active' | 'inactive' | 'error'
+  jira_url?: string;
+  jira_email?: string;
+  jira_project_key?: string;
+  field_config?: any;
+  has_api_token?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Pattern {

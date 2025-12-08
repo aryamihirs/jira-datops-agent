@@ -8,7 +8,10 @@ const navigation = [
   { name: 'Dashboard', href: '/' },
   { name: 'Requests', href: '/requests' },
   { name: 'Connections', href: '/connections' },
+  { name: 'Knowledge Base', href: '/knowledge-base' },
 ];
+
+import { SystemStatus } from './SystemStatus';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -45,19 +48,7 @@ export function Sidebar() {
       </nav>
 
       {/* Quick Stats */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div className="text-xs font-medium text-gray-500 mb-3">System Status</div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-600">Pending Requests</span>
-            <span className="text-xs font-semibold text-gray-900 bg-amber-100 px-2 py-0.5 rounded">23</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-600">System Status</span>
-            <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">Active</span>
-          </div>
-        </div>
-      </div>
+      <SystemStatus />
     </aside>
   );
 }

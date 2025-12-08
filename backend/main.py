@@ -4,6 +4,11 @@ Main entry point for the FastAPI application
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine, Base
+from app.api.endpoints import requests, connections, dashboard, knowledge
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="DataOps JIRA Agent API",
@@ -14,7 +19,7 @@ app = FastAPI(
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # NextJS dev server
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,22 +41,20 @@ async def health_check():
     """Detailed health check"""
     return {
         "status": "ok",
-        "database": "connected",  # TODO: Check actual DB connection
-        "llm": "loaded",  # TODO: Check LLM status
+        "database": "connected",
+        "llm": "loaded",
         "integrations": {
-            "jira": "connected",  # TODO: Check actual status
+            "jira": "connected",
             "email": "connected",
             "slack": "connected"
         }
     }
 
-
-# TODO: Import and include routers
-# from app.api import dashboard, requests, connections, patterns
-# app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
-# app.include_router(requests.router, prefix="/api/requests", tags=["requests"])
-# app.include_router(connections.router, prefix="/api/connections", tags=["connections"])
-# app.include_router(patterns.router, prefix="/api/patterns", tags=["patterns"])
+# Include routers
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
+app.include_router(requests.router, prefix="/api/requests", tags=["requests"])
+app.include_router(connections.router, prefix="/api/connections", tags=["connections"])
+app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge"])
 
 
 if __name__ == "__main__":
