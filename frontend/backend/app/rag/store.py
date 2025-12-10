@@ -39,7 +39,21 @@ class LlamaIndexRAGStore:
         )
         
         # Initialize ChromaDB client
-        self.chroma_client = chromadb.PersistentClient(path="./chroma_db")
+        CHROMA_PATH = "./chroma_db"
+        
+        # Vercel Hack: Copy to /tmp
+        if os.getenv("VERCEL") or (os.getcwd().startswith("/var/task")):
+            import shutil
+            TMP_CHROMA = "/tmp/chroma_db"
+            if os.path.exists(CHROMA_PATH) and not os.path.exists(TMP_CHROMA):
+                try:
+                    shutil.copytree(CHROMA_PATH, TMP_CHROMA)
+                    print(f"Copied chroma_db to {TMP_CHROMA}")
+                except Exception as e:
+                    print(f"Failed to copy chroma_db: {e}")
+            CHROMA_PATH = TMP_CHROMA
+
+        self.chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
         
         # Create collections
         self.jira_collection = self.chroma_client.get_or_create_collection("jira_history")
