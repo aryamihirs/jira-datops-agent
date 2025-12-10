@@ -89,7 +89,7 @@ __turbopack_context__.s([
     ()=>api
 ]);
 // Base API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = ("TURBOPACK compile-time value", "http://localhost:8000") || '/api';
 // Generic fetch wrapper
 async function apiCall(endpoint, options) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -826,7 +826,7 @@ function ConnectionsPage() {
             if (jiraApiToken !== '********') {
                 updateData.jira_api_token = jiraApiToken;
             }
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${selectedConnection.id}`, {
+            await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${selectedConnection.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -834,14 +834,14 @@ function ConnectionsPage() {
                 body: JSON.stringify(updateData)
             });
             // Then test
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/test`, {
+            const response = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/test`, {
                 method: 'POST'
             });
             const result = await response.json();
             setTestResult(result);
             if (result.success) {
                 // Load projects
-                const projectsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/projects`);
+                const projectsResponse = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/projects`);
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData);
             }
@@ -866,7 +866,7 @@ function ConnectionsPage() {
             if (jiraApiToken !== '********') {
                 updateData.jira_api_token = jiraApiToken;
             }
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${selectedConnection.id}`, {
+            await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${selectedConnection.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -875,7 +875,7 @@ function ConnectionsPage() {
             });
             // Fetch field configuration if project changed and no config exists, or just refresh
             if (jiraProjectKey && !fieldConfig) {
-                const fieldConfigResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/field-config`);
+                const fieldConfigResponse = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${selectedConnection.id}/field-config`);
                 const fieldConfigData = await fieldConfigResponse.json();
                 setFieldConfig(fieldConfigData);
                 const issueTypes = Object.keys(fieldConfigData);
@@ -892,7 +892,7 @@ function ConnectionsPage() {
     const handleDelete = async (id)=>{
         if (!confirm('Are you sure you want to delete this connection?')) return;
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/connections/${id}`, {
+            await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/connections/${id}`, {
                 method: 'DELETE'
             });
             loadConnections();

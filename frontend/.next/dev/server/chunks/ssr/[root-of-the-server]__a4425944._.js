@@ -89,7 +89,7 @@ __turbopack_context__.s([
     ()=>api
 ]);
 // Base API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = ("TURBOPACK compile-time value", "http://localhost:8000") || '/api';
 // Generic fetch wrapper
 async function apiCall(endpoint, options) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -754,7 +754,7 @@ function KnowledgeBasePage() {
     const loadKnowledgeBase = async ()=>{
         try {
             setIsLoading(true);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/knowledge/list`);
+            const response = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/knowledge/list`);
             const data = await response.json();
             const docs = data.items.filter((item)=>item.file_type === 'document');
             const tickets = data.items.filter((item)=>item.file_type === 'jira_ticket');
@@ -772,7 +772,7 @@ function KnowledgeBasePage() {
     const handleDelete = async (fileType, id)=>{
         if (!confirm(`Are you sure you want to delete ${id}?`)) return;
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/knowledge/item/${fileType}/${encodeURIComponent(id)}`, {
+            const response = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/knowledge/item/${fileType}/${encodeURIComponent(id)}`, {
                 method: 'DELETE'
             });
             if (!response.ok) throw new Error('Delete failed');
@@ -785,7 +785,7 @@ function KnowledgeBasePage() {
     };
     const handleView = async (fileType, id)=>{
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/knowledge/item/${fileType}/${encodeURIComponent(id)}/content`);
+            const response = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/knowledge/item/${fileType}/${encodeURIComponent(id)}/content`);
             if (!response.ok) throw new Error('Failed to load content');
             const data = await response.json();
             setViewModal({
@@ -803,7 +803,7 @@ function KnowledgeBasePage() {
             setUploadStatus('Uploading...');
             const formData = new FormData();
             formData.append('file', file);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/knowledge/upload`, {
+            const response = await fetch(`${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/knowledge/upload`, {
                 method: 'POST',
                 body: formData
             });
@@ -950,7 +950,7 @@ function KnowledgeBasePage() {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                         className: "whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6",
                                         children: type === 'document' && item.has_file ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                            href: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/knowledge/download/${encodeURIComponent(item.id)}`,
+                                            href: `${("TURBOPACK compile-time value", "http://localhost:8000") || 'http://localhost:8000/api'}/knowledge/download/${encodeURIComponent(item.id)}`,
                                             target: "_blank",
                                             rel: "noopener noreferrer",
                                             className: "font-medium text-indigo-600 hover:text-indigo-900 hover:underline",

@@ -5,13 +5,12 @@ type AppRoutes = "/" | "/connections" | "/knowledge-base" | "/requests"
 type PageRoutes = never
 type LayoutRoutes = "/"
 type RedirectRoutes = never
-type RewriteRoutes = "/api/[[...path]]"
+type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
 
 
 interface ParamMap {
   "/": {}
-  "/api/[[...path]]": { "path"?: string[]; }
   "/connections": {}
   "/knowledge-base": {}
   "/requests": {}

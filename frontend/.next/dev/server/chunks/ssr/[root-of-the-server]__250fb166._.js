@@ -89,7 +89,7 @@ __turbopack_context__.s([
     ()=>api
 ]);
 // Base API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = ("TURBOPACK compile-time value", "http://localhost:8000") || '/api';
 // Generic fetch wrapper
 async function apiCall(endpoint, options) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
