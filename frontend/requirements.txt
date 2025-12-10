@@ -1,4 +1,4 @@
-# VERCEL QUICK DEMO - MINIMAL DEPENDENCIES
+# VERCEL PRODUCTION - FULL RAG WITH PINECONE
 # FastAPI and ASGI server
 fastapi==0.115.5
 uvicorn==0.32.1
@@ -9,11 +9,15 @@ sqlalchemy==2.0.36
 # JIRA Integration
 jira==3.8.0
 
-# Slack Integration (lightweight)
+# Slack Integration
 slack-sdk==3.33.4
 
-# AI - Lightweight only
+# AI & RAG (Lightweight - Pinecone Cloud)
 google-genai>=0.1.0
+llama-index-core>=0.10.0
+llama-index-vector-stores-pinecone>=0.1.0
+llama-index-embeddings-google>=0.1.0
+pinecone-client>=3.0.0
 
 # Configuration
 python-dotenv==1.0.1
@@ -30,10 +34,12 @@ loguru==0.7.3
 # Multipart support
 python-multipart>=0.0.9
 
-# REMOVED FOR VERCEL DEMO (under 250MB limit):
-# - chromadb, llama-index (RAG disabled for demo)
-# - presidio (PII detection disabled)
-# - pandas, numpy (not needed for demo)
-# - celery, redis (no background jobs)
-# - alembic, pytest (not needed in production)
-# - email/parsing libs (can add back if needed)
+# Document parsing (lightweight)
+pypdf>=4.0.0
+python-docx>=1.1.0
+
+# OPTIMIZED FOR VERCEL:
+# ✅ Pinecone cloud vector DB (replaces ChromaDB)
+# ✅ LlamaIndex with Pinecone
+# ✅ Google Gemini embeddings
+# ❌ Removed: presidio, pandas, numpy, celery, redis (optional features)

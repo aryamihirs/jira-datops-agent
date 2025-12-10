@@ -6,9 +6,8 @@ import io
 import os
 import shutil
 from pathlib import Path
-# RAG disabled for Vercel demo
-# from app.rag.store import rag_store
-rag_store = None  # Placeholder
+# RAG with Pinecone for production
+from app.rag.store import rag_store
 from app.services.parsing_service import docling_parser
 
 router = APIRouter()

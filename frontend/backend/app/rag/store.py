@@ -1,22 +1,12 @@
 """
-LlamaIndex-based RAG store with hybrid search and re-ranking.
-Production-grade implementation using industry best practices.
+RAG store - Now uses Pinecone for Vercel deployment.
+Imports from store_pinecone for cloud-based vector storage.
 """
-import os
-from typing import List, Dict, Any
-from pathlib import Path
+# Import Pinecone-based RAG store for Vercel deployment
+from app.rag.store_pinecone import rag_store
 
-from llama_index.core import (
-    VectorStoreIndex,
-    Document,
-    StorageContext,
-    Settings
-)
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.embeddings.google import GeminiEmbedding
-from llama_index.core.node_parser import MarkdownNodeParser
-from llama_index.core.retrievers import VectorIndexRetriever
-import chromadb
+# Re-export for backward compatibility
+__all__ = ['rag_store']
 
 
 class LlamaIndexRAGStore:
