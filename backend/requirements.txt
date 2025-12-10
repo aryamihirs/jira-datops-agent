@@ -36,6 +36,7 @@ python-multipart>=0.0.9
 # Document parsing (lightweight)
 pypdf>=4.0.0
 python-docx>=1.1.0
+python-pptx>=0.6.21
 
 # OPTIMIZED FOR VERCEL (Minimal bundle):
 # ✅ Pinecone SDK directly (no llama-index = huge size savings!)
