@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DataOps JIRA Agent
+
+An intelligent automation platform for DataOps and MLOps teams to streamline JIRA ticket creation from multiple communication channels.
+
+## 🎥 Demo Video
+
+[![Watch Demo](https://img.youtube.com/vi/x1k2PHS9W8A/0.jpg)](https://youtu.be/x1k2PHS9W8A)
+
+**[▶️ Watch the Demo on YouTube](https://youtu.be/x1k2PHS9W8A)**
+
+## Features
+
+- **Multi-Channel Monitoring**: Email, Slack, file system integration
+- **AI-Powered Extraction**: Local LLM processing for data privacy
+- **PII/PHI Detection**: Automatic masking of sensitive information
+- **JIRA Integration**: Smart field mapping and ticket creation
+- **Pattern Learning**: Continuous improvement from corrections
+- **Analytics Dashboard**: Real-time metrics and insights
+
+## Tech Stack
+
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Modular Architecture** - Easy to extend and maintain
+
+### Backend
+- **FastAPI** - Modern Python web framework
+- **SQLAlchemy** - Database ORM
+- **Transformers** - Local LLM processing
+- **Presidio** - PII/PHI detection
+- **ChromaDB** - Vector database for knowledge base
+- **Celery + Redis** - Background task processing
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ and npm
+- Python 3.11+
+- PostgreSQL (optional, can use SQLite for development)
+- Redis (for background tasks)
+
+### Installation
+
+#### 1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd jira-datops-agent
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The frontend will be available at `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### 3. Backend Setup
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-## Learn More
+# Install dependencies
+pip install -r requirements.txt
 
-To learn more about Next.js, take a look at the following resources:
+# Set up environment variables
+cp backend/.env.example backend/.env
+# Edit backend/.env with your configurations
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run the server
+cd backend
+python main.py
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The API will be available at `http://localhost:8000`
 
-## Deploy on Vercel
+### Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+jira-datops-agent/
+├── frontend/                 # Next.js frontend application
+│   ├── app/                 # App router pages
+│   │   ├── page.tsx        # Dashboard
+│   │   ├── requests/       # Request queue
+│   │   └── connections/    # Integrations
+│   ├── components/          # React components
+│   │   ├── ui/             # Reusable UI components
+│   │   ├── layout/         # Layout components
+│   │   ├── dashboard/      # Dashboard components
+│   │   ├── requests/       # Request components
+│   │   └── connections/    # Connection components
+│   └── lib/                # Utilities and API client
+│       ├── api/            # API client layer
+│       ├── types/          # TypeScript types
+│       └── utils/          # Helper functions
+│
+├── backend/                 # FastAPI backend
+│   ├── app/
+│   │   ├── api/            # API endpoints
+│   │   ├── models/         # Database models
+│   │   └── services/       # Business logic
+│   ├── main.py             # Application entry point
+│   └── .env.example        # Environment template
+│
+└── requirements.txt         # Python dependencies
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Integration
+
+The frontend is designed to easily integrate with the backend API. Replace mock data calls in components:
+
+```typescript
+// Current (mock data)
+const requests = mockRequests;
+
+// Replace with API call
+const requests = await api.getRequests();
+```
+
+All API endpoints are defined in `frontend/lib/api/client.ts` with TypeScript types.
+
+## Development
+
+### Frontend Development
+- Run `npm run dev` in the frontend directory
+- Components are hot-reloaded automatically
+- Tailwind CSS classes are available throughout
+
+### Backend Development
+- Run `python main.py` in the backend directory
+- FastAPI auto-reloads on file changes
+- API documentation at `http://localhost:8000/docs`
+
+## Configuration
+
+### Frontend
+- API URL: Set `NEXT_PUBLIC_API_URL` in `.env.local`
+
+### Backend
+- Copy `backend/.env.example` to `backend/.env`
+- Configure JIRA, email, Slack credentials
+- Set up database connection string
+
+## License
+
+Proprietary - Internal Use Only
+
+## Support
+
+For issues or questions, contact the DataOps team.
