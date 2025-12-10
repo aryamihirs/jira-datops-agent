@@ -13,13 +13,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.api.endpoints import requests, connections, dashboard, knowledge
 
-# Create database tables (skip on Vercel serverless for now)
-# TODO: Use a proper database like PostgreSQL for production
-if not os.getenv("VERCEL"):
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        print(f"Warning: Could not create database tables: {e}")
+# Create database tables on startup (works with both SQLite locally and PostgreSQL on Vercel)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✓ Database tables created/verified successfully")
+except Exception as e:
+    print(f"Warning: Could not create database tables: {e}")
 
 app = FastAPI(
     title="DataOps JIRA Agent API",
