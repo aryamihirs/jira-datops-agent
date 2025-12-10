@@ -63,6 +63,8 @@ export interface Connection {
   has_api_token?: boolean;
   created_at?: string;
   updated_at?: string;
+  lastSync?: string;
+  errorMessage?: string;
 }
 
 export interface Pattern {

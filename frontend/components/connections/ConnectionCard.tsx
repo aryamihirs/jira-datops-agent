@@ -6,7 +6,7 @@ import type { Connection } from '@/lib/types';
 
 interface ConnectionCardProps {
   connection: Connection;
-  onTest?: (id: string) => void;
+  onTest?: (id: number | string) => void;
 }
 
 export function ConnectionCard({ connection, onTest }: ConnectionCardProps) {

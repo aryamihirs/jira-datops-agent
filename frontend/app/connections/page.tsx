@@ -66,7 +66,7 @@ export default function ConnectionsPage() {
 
   const handleAddConnection = async () => {
     try {
-      await api.createConnection({ name: newConnectionName, type: newConnectionType });
+      await api.createConnection({ name: newConnectionName, type: newConnectionType as 'jira' | 'email' | 'slack' | 'confluence' | 'file_system' });
       setAddModalOpen(false);
       setNewConnectionName('');
       setNewConnectionType('jira');
