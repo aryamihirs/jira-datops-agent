@@ -3,7 +3,9 @@ import json
 from typing import Dict, Any, List
 from google import genai
 from google.genai import types
-from app.rag.store import rag_store
+
+# Disable RAG for Vercel demo (chromadb/llama-index removed)
+# from app.rag.store import rag_store
 
 class RequestCreatorAgent:
     def __init__(self):
@@ -23,15 +25,11 @@ class RequestCreatorAgent:
         if not self.client:
             return self._fallback_creation(context)
 
-        # 1. Retrieve Context (RAG)
-        similar_tickets = rag_store.query_similar_tickets(context)
-        relevant_docs = rag_store.query_docs(context)
-        
-        rag_context = ""
-        if similar_tickets:
-            rag_context += "\nSimilar Past Tickets:\n" + json.dumps(similar_tickets, indent=2)
-        if relevant_docs:
-            rag_context += "\nRelevant Documentation:\n" + str(relevant_docs)
+        # 1. RAG disabled for Vercel demo (chromadb removed)
+        # similar_tickets = rag_store.query_similar_tickets(context)
+        # relevant_docs = rag_store.query_docs(context)
+
+        rag_context = "\n(RAG context disabled for demo - using direct AI inference)"
 
         # 2. Define Schema
         if jira_schema:

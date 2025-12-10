@@ -1,0 +1,6 @@
+{
+  "/connections/page": "app/connections/page.js",
+  "/knowledge-base/page": "app/knowledge-base/page.js",
+  "/page": "app/page.js",
+  "/requests/page": "app/requests/page.js"
+}
