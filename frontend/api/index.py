@@ -1,8 +1,13 @@
 import sys
 import os
 
-# Add backend directory to sys.path so that internal imports (like 'from app...') work
-sys.path.append(os.path.join(os.getcwd(), 'backend'))
+# Get the directory containing this file (api/)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Go up one level to get the frontend/ directory
+frontend_dir = os.path.dirname(current_dir)
+# Add backend directory to sys.path
+backend_dir = os.path.join(frontend_dir, 'backend')
+sys.path.insert(0, backend_dir)
 
 from main import app
 
