@@ -33,6 +33,7 @@ app.add_middleware(
         "http://localhost:3000",  # Local development
         "https://jira-datops-agent-prod.vercel.app",  # Production frontend
         "https://jira-datops-agent-prod-*.vercel.app",  # Preview deployments
+        "https://frontend-*-aryamihirs-projects.vercel.app",  # New frontend deployments
     ],
     allow_credentials=True,
     allow_methods=["*"],
