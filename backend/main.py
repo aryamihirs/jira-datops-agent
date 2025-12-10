@@ -32,9 +32,9 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # Local development
         "https://jira-datops-agent-prod.vercel.app",  # Production frontend
-        "https://jira-datops-agent-prod-*.vercel.app",  # Preview deployments
-        "https://frontend-*-aryamihirs-projects.vercel.app",  # New frontend deployments
+        "https://frontend-95x53v9yz-aryamihirs-projects.vercel.app",  # New frontend deployment
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview deployments
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
