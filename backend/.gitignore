@@ -1,0 +1,6 @@
+.vercel
+uploaded_files/
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
