@@ -50,3 +50,8 @@ tmp/
 temp/
 .vercel
 frontend/backend/uploaded_files/
+# ChromaDB (legacy - now using Pinecone)
+frontend/backend/chroma_db/
+# ChromaDB (legacy - now using Pinecone)
+frontend/chroma_db/
+chroma_db/
