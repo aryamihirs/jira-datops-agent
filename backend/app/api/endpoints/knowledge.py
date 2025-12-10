@@ -16,7 +16,8 @@ from app.models.knowledge_item import KnowledgeItem
 router = APIRouter()
 
 # File storage directory
-UPLOAD_DIR = Path("./uploaded_files")
+# Use /tmp for Vercel serverless (ephemeral storage)
+UPLOAD_DIR = Path("/tmp/uploaded_files")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 def get_mime_type(filename: str) -> str:
