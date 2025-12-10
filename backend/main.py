@@ -24,7 +24,11 @@ app = FastAPI(
 # CORS middleware for frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://jira-datops-agent-prod.vercel.app",  # Production frontend
+        "https://jira-datops-agent-prod-*.vercel.app",  # Preview deployments
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
