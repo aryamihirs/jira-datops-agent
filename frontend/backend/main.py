@@ -2,6 +2,11 @@
 DataOps JIRA Agent - Backend API Server
 Main entry point for the FastAPI application
 """
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base

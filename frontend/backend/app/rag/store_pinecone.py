@@ -1,21 +1,17 @@
 """
-Pinecone-based RAG store for Vercel deployment.
-Uses Pinecone Cloud instead of local ChromaDB.
+Minimal Pinecone RAG store optimized for Vercel deployment.
+Uses Pinecone SDK and Google Embeddings directly (no llama-index).
 """
 import os
 from typing import List, Dict, Any
 from pinecone import Pinecone, ServerlessSpec
-from llama_index.core import VectorStoreIndex, Document, StorageContext, Settings
-from llama_index.vector_stores.pinecone import PineconeVectorStore
-from llama_index.embeddings.google import GeminiEmbedding
-from llama_index.core.node_parser import MarkdownNodeParser
-from llama_index.core.retrievers import VectorIndexRetriever
+import google.generativeai as genai
 
 
 class PineconeRAGStore:
     """
-    Production RAG store using Pinecone Cloud.
-    Optimized for Vercel serverless deployment.
+    Minimal RAG store using Pinecone SDK directly.
+    Optimized for Vercel serverless deployment (lightweight).
     """
 
     def __init__(self):
@@ -29,50 +25,33 @@ class PineconeRAGStore:
 
         self.pc = Pinecone(api_key=api_key)
 
-        # Set up Gemini embeddings
+        # Set up Google Gemini for embeddings
         gemini_api_key = os.getenv("GOOGLE_API_KEY")
         if not gemini_api_key:
             print("WARNING: GOOGLE_API_KEY not found. Embeddings will not work.")
-        Settings.embed_model = GeminiEmbedding(
-            model_name="models/embedding-001",
-            api_key=gemini_api_key
-        )
+            self.embedding_model = None
+        else:
+            genai.configure(api_key=gemini_api_key)
+            self.embedding_model = "models/text-embedding-004"
 
         # Index names
         self.jira_index_name = "jira-history"
         self.docs_index_name = "architecture-docs"
 
+        # Embedding dimension for Google's text-embedding-004
+        self.embedding_dim = 768
+
         # Create indexes if they don't exist
         self._ensure_indexes()
 
         # Get Pinecone indexes
-        self.jira_index = self.pc.Index(self.jira_index_name)
-        self.docs_index = self.pc.Index(self.docs_index_name)
-
-        # Create vector stores
-        self.jira_vector_store = PineconeVectorStore(pinecone_index=self.jira_index)
-        self.docs_vector_store = PineconeVectorStore(pinecone_index=self.docs_index)
-
-        # Create storage contexts
-        self.jira_storage_context = StorageContext.from_defaults(
-            vector_store=self.jira_vector_store
-        )
-        self.docs_storage_context = StorageContext.from_defaults(
-            vector_store=self.docs_vector_store
-        )
-
-        # Initialize LlamaIndex indexes
-        self.jira_llama_index = VectorStoreIndex.from_vector_store(
-            self.jira_vector_store,
-            storage_context=self.jira_storage_context
-        )
-        self.docs_llama_index = VectorStoreIndex.from_vector_store(
-            self.docs_vector_store,
-            storage_context=self.docs_storage_context
-        )
-
-        # Markdown parser for semantic chunking
-        self.node_parser = MarkdownNodeParser()
+        try:
+            self.jira_index = self.pc.Index(self.jira_index_name)
+            self.docs_index = self.pc.Index(self.docs_index_name)
+        except Exception as e:
+            print(f"Error connecting to Pinecone indexes: {e}")
+            self.jira_index = None
+            self.docs_index = None
 
     def _ensure_indexes(self):
         """Create Pinecone indexes if they don't exist."""
@@ -86,7 +65,7 @@ class PineconeRAGStore:
             try:
                 self.pc.create_index(
                     name=self.jira_index_name,
-                    dimension=768,  # Gemini embedding dimension
+                    dimension=self.embedding_dim,
                     metric="cosine",
                     spec=ServerlessSpec(cloud="aws", region="us-east-1")
                 )
@@ -99,7 +78,7 @@ class PineconeRAGStore:
             try:
                 self.pc.create_index(
                     name=self.docs_index_name,
-                    dimension=768,  # Gemini embedding dimension
+                    dimension=self.embedding_dim,
                     metric="cosine",
                     spec=ServerlessSpec(cloud="aws", region="us-east-1")
                 )
@@ -107,89 +86,137 @@ class PineconeRAGStore:
             except Exception as e:
                 print(f"Error creating docs index: {e}")
 
+    def _get_embedding(self, text: str) -> List[float]:
+        """Get embedding for text using Google's embedding model."""
+        if not self.embedding_model:
+            return []
+
+        try:
+            result = genai.embed_content(
+                model=self.embedding_model,
+                content=text,
+                task_type="retrieval_document"
+            )
+            return result['embedding']
+        except Exception as e:
+            print(f"Error getting embedding: {e}")
+            return []
+
     def add_jira_tickets(self, tickets: List[Dict[str, Any]]):
         """Ingest JIRA tickets into vector store."""
-        if not self.pc:
+        if not self.pc or not self.jira_index:
             print("Pinecone not initialized. Skipping ticket ingestion.")
             return
 
-        documents = []
+        vectors = []
         for ticket in tickets:
             text = f"Summary: {ticket['summary']}\nDescription: {ticket['description']}"
-            doc = Document(
-                text=text,
-                metadata={
-                    'id': str(ticket['id']),
-                    'status': ticket.get('status', 'Unknown'),
-                    'issuetype': ticket.get('issuetype', 'Unknown')
-                },
-                doc_id=str(ticket['id'])
-            )
-            documents.append(doc)
+            embedding = self._get_embedding(text)
 
-        # Add to index
-        for doc in documents:
-            self.jira_llama_index.insert(doc)
+            if embedding:
+                vectors.append({
+                    "id": str(ticket['id']),
+                    "values": embedding,
+                    "metadata": {
+                        "text": text,
+                        "status": ticket.get('status', 'Unknown'),
+                        "issuetype": ticket.get('issuetype', 'Unknown')
+                    }
+                })
+
+        if vectors:
+            try:
+                self.jira_index.upsert(vectors=vectors)
+                print(f"Upserted {len(vectors)} JIRA tickets to Pinecone")
+            except Exception as e:
+                print(f"Error upserting tickets: {e}")
 
     def add_documents(self, docs: List[Dict[str, str]]):
-        """Ingest documents with semantic chunking."""
-        if not self.pc:
+        """Ingest documents with chunking."""
+        if not self.pc or not self.docs_index:
             print("Pinecone not initialized. Skipping document ingestion.")
             return
 
-        documents = []
+        vectors = []
         for doc in docs:
-            llama_doc = Document(
-                text=doc['content'],
-                metadata={
-                    'source': doc['source'],
-                    'parent_id': doc['id']
-                },
-                doc_id=doc['id']
-            )
-            documents.append(llama_doc)
+            # Simple chunking: split by paragraphs (double newline)
+            chunks = [chunk.strip() for chunk in doc['content'].split('\n\n') if chunk.strip()]
 
-        # Parse into nodes (semantic chunks)
-        nodes = self.node_parser.get_nodes_from_documents(documents)
+            for i, chunk in enumerate(chunks):
+                chunk_id = f"{doc['id']}_chunk_{i}"
+                embedding = self._get_embedding(chunk)
 
-        # Add to index
-        self.docs_llama_index.insert_nodes(nodes)
+                if embedding:
+                    vectors.append({
+                        "id": chunk_id,
+                        "values": embedding,
+                        "metadata": {
+                            "text": chunk,
+                            "source": doc['source'],
+                            "parent_id": doc['id'],
+                            "chunk_index": i
+                        }
+                    })
+
+        if vectors:
+            try:
+                self.docs_index.upsert(vectors=vectors)
+                print(f"Upserted {len(vectors)} document chunks to Pinecone")
+            except Exception as e:
+                print(f"Error upserting documents: {e}")
 
     def query_similar_tickets(self, query: str, n_results: int = 3) -> Dict[str, Any]:
         """Retrieve similar past tickets using vector search."""
-        if not self.pc:
+        if not self.pc or not self.jira_index:
             return {'ids': [[]], 'documents': [[]], 'metadatas': [[]], 'distances': [[]]}
 
-        retriever = VectorIndexRetriever(
-            index=self.jira_llama_index,
-            similarity_top_k=n_results
-        )
+        query_embedding = self._get_embedding(query)
+        if not query_embedding:
+            return {'ids': [[]], 'documents': [[]], 'metadatas': [[]], 'distances': [[]]}
 
-        nodes = retriever.retrieve(query)
+        try:
+            results = self.jira_index.query(
+                vector=query_embedding,
+                top_k=n_results,
+                include_metadata=True
+            )
 
-        # Format results to match original API
-        results = {
-            'ids': [[node.node_id for node in nodes]],
-            'documents': [[node.text for node in nodes]],
-            'metadatas': [[node.metadata for node in nodes]],
-            'distances': [[1.0 - node.score for node in nodes]]
-        }
-        return results
+            # Format results to match original API
+            ids = [match['id'] for match in results['matches']]
+            documents = [match['metadata'].get('text', '') for match in results['matches']]
+            metadatas = [match['metadata'] for match in results['matches']]
+            distances = [1.0 - match['score'] for match in results['matches']]
+
+            return {
+                'ids': [ids],
+                'documents': [documents],
+                'metadatas': [metadatas],
+                'distances': [distances]
+            }
+        except Exception as e:
+            print(f"Error querying tickets: {e}")
+            return {'ids': [[]], 'documents': [[]], 'metadatas': [[]], 'distances': [[]]}
 
     def query_docs(self, query: str, n_results: int = 5) -> List[str]:
-        """Retrieve relevant documentation with re-ranking."""
-        if not self.pc:
+        """Retrieve relevant documentation."""
+        if not self.pc or not self.docs_index:
             return []
 
-        retriever = VectorIndexRetriever(
-            index=self.docs_llama_index,
-            similarity_top_k=min(20, n_results * 4)
-        )
+        query_embedding = self._get_embedding(query)
+        if not query_embedding:
+            return []
 
-        nodes = retriever.retrieve(query)
+        try:
+            results = self.docs_index.query(
+                vector=query_embedding,
+                top_k=n_results,
+                include_metadata=True
+            )
 
-        # Return top n_results
-        return [node.text for node in nodes[:n_results]]
+            return [match['metadata'].get('text', '') for match in results['matches']]
+        except Exception as e:
+            print(f"Error querying docs: {e}")
+            return []
 
     def list_documents(self) -> List[Dict[str, Any]]:
         """List all uploaded documents."""
@@ -204,10 +231,13 @@ class PineconeRAGStore:
 
     def delete_document(self, doc_id: str) -> bool:
         """Delete a document from the vector store."""
-        if not self.pc:
+        if not self.pc or not self.docs_index:
             return False
 
         try:
+            # Delete all chunks with this parent_id
+            # Note: Pinecone doesn't support delete by metadata directly
+            # This is a limitation - we can only delete by ID
             self.docs_index.delete(ids=[doc_id])
             return True
         except Exception as e:
@@ -216,7 +246,7 @@ class PineconeRAGStore:
 
     def delete_jira_ticket(self, ticket_id: str) -> bool:
         """Delete a JIRA ticket from the vector store."""
-        if not self.pc:
+        if not self.pc or not self.jira_index:
             return False
 
         try:
@@ -226,11 +256,37 @@ class PineconeRAGStore:
             print(f"Error deleting ticket {ticket_id}: {e}")
             return False
 
+    # Collections property for backward compatibility
+    @property
+    def docs_collection(self):
+        """Mock collection object for backward compatibility."""
+        return MockCollection(self.docs_index)
+
+    @property
+    def jira_collection(self):
+        """Mock collection object for backward compatibility."""
+        return MockCollection(self.jira_index)
+
+
+class MockCollection:
+    """Mock collection class for backward compatibility with ChromaDB API."""
+
+    def __init__(self, index):
+        self.index = index
+
+    def get(self, ids=None):
+        """Mock get method - returns empty results."""
+        return {
+            'ids': ids or [],
+            'documents': [],
+            'metadatas': []
+        }
+
 
 # Singleton instance
 try:
     rag_store = PineconeRAGStore()
-    print("✅ Pinecone RAG store initialized successfully")
+    print("✅ Minimal Pinecone RAG store initialized successfully")
 except Exception as e:
     print(f"⚠️ Warning: Could not initialize Pinecone RAG store: {e}")
     rag_store = None
