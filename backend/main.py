@@ -3,6 +3,7 @@ DataOps JIRA Agent - Backend API Server
 Main entry point for the FastAPI application
 """
 from dotenv import load_dotenv
+import os
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,8 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.api.endpoints import requests, connections, dashboard, knowledge
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Create database tables (skip on Vercel serverless for now)
+# TODO: Use a proper database like PostgreSQL for production
+if not os.getenv("VERCEL"):
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Warning: Could not create database tables: {e}")
 
 app = FastAPI(
     title="DataOps JIRA Agent API",
