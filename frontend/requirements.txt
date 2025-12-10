@@ -2,6 +2,7 @@
 # FastAPI and ASGI server
 fastapi==0.115.5
 uvicorn==0.32.1
+mangum>=0.17.0
 
 # Database
 sqlalchemy==2.0.36

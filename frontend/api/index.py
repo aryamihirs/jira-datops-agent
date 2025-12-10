@@ -9,7 +9,14 @@ frontend_dir = os.path.dirname(current_dir)
 backend_dir = os.path.join(frontend_dir, 'backend')
 sys.path.insert(0, backend_dir)
 
+# Import FastAPI app
 from main import app
 
-# This is the Vercel entry point
-# It exposes the FastAPI app instance for Vercel's serverless runtime
+# Vercel Python runtime expects a handler function
+# For FastAPI/ASGI apps, we can use Mangum adapter
+try:
+    from mangum import Mangum
+    handler = Mangum(app)
+except ImportError:
+    # Fallback: just expose the app directly (works with some ASGI servers)
+    handler = app
