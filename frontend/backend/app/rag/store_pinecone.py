@@ -20,7 +20,7 @@ class PineconeRAGStore:
 
     def __init__(self):
         # Initialize Pinecone
-        api_key = os.getenv("PINECONE_API_KEY", "pcsk_5MgGnA_BV1ZwSE7HZYyJXT9xrGQpaQaexVGRWP1QquBhJJKKtsBaGH8BpbBpqqVu65dmi")
+        api_key = os.getenv("PINECONE_API_KEY")
 
         if not api_key:
             print("WARNING: PINECONE_API_KEY not found. RAG will not work.")
@@ -30,7 +30,9 @@ class PineconeRAGStore:
         self.pc = Pinecone(api_key=api_key)
 
         # Set up Gemini embeddings
-        gemini_api_key = os.getenv("GOOGLE_API_KEY", "AIzaSyAYPxArNu4w-kcu6g6mjzdY7H6NRNkMqx8")
+        gemini_api_key = os.getenv("GOOGLE_API_KEY")
+        if not gemini_api_key:
+            print("WARNING: GOOGLE_API_KEY not found. Embeddings will not work.")
         Settings.embed_model = GeminiEmbedding(
             model_name="models/embedding-001",
             api_key=gemini_api_key

@@ -49,3 +49,4 @@ node_modules/
 tmp/
 temp/
 .vercel
+frontend/backend/uploaded_files/

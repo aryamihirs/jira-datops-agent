@@ -9,13 +9,13 @@ from app.rag.store import rag_store
 
 class RequestCreatorAgent:
     def __init__(self):
-        self.api_key = os.getenv("GOOGLE_API_KEY", "AIzaSyAYPxArNu4w-kcu6g6mjzdY7H6NRNkMqx8")
+        self.api_key = os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             print("WARNING: GOOGLE_API_KEY not found. Agent will fail.")
             self.client = None
         else:
             self.client = genai.Client(api_key=self.api_key)
-        
+
         self.model = "gemini-2.0-flash-exp"
 
     async def create_request(self, context: str, project_config: Dict[str, Any] = None, jira_schema: Dict[str, Any] = None) -> Dict[str, Any]:
