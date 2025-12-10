@@ -1,5 +1,6 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import FileResponse
+from sqlalchemy.orm import Session
 from typing import List
 import csv
 import io
@@ -9,6 +10,8 @@ from pathlib import Path
 # RAG with Pinecone for production
 from app.rag.store import rag_store
 from app.services.parsing_service import docling_parser
+from app.database import get_db
+from app.models.knowledge_item import KnowledgeItem
 
 router = APIRouter()
 
@@ -35,7 +38,7 @@ def get_mime_type(filename: str) -> str:
     return mime_types.get(ext, 'application/octet-stream')
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Universal file upload endpoint with Gemini-powered parsing."""
     try:
         content = await file.read()
@@ -70,6 +73,20 @@ async def upload_file(file: UploadFile = File(...)):
                     
                     if tickets:
                         rag_store.add_jira_tickets(tickets)
+
+                        # Save each ticket to database
+                        for ticket in tickets:
+                            knowledge_item = KnowledgeItem(
+                                item_id=ticket['id'],
+                                item_type="jira_ticket",
+                                title=ticket['summary'],
+                                status=ticket.get('status', 'Unknown'),
+                                issue_type=ticket.get('issuetype', 'Unknown'),
+                                chunk_count=1
+                            )
+                            db.merge(knowledge_item)  # Use merge to handle duplicates
+                        db.commit()
+
                         return {
                             "message": f"Successfully uploaded {file.filename} as JIRA history",
                             "type": "jira_csv",
@@ -97,9 +114,25 @@ async def upload_file(file: UploadFile = File(...)):
             "content": text_content,
             "source": file.filename
         }
-        
+
         rag_store.add_documents([doc])
-        
+
+        # Calculate chunk count (simple chunking by paragraphs)
+        chunks = [chunk.strip() for chunk in text_content.split('\n\n') if chunk.strip()]
+
+        # Save document metadata to database
+        knowledge_item = KnowledgeItem(
+            item_id=file.filename,
+            item_type="document",
+            title=file.filename,
+            file_path=str(file_path),
+            file_size=len(content),
+            mime_type=mime_type,
+            chunk_count=len(chunks)
+        )
+        db.merge(knowledge_item)  # Use merge to handle duplicates
+        db.commit()
+
         return {
             "message": f"Successfully uploaded {file.filename}",
             "type": "document",
@@ -112,31 +145,14 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 @router.get("/list")
-async def list_knowledge_base():
+async def list_knowledge_base(db: Session = Depends(get_db)):
     """List all files in the knowledge base."""
-    documents = rag_store.list_documents()
-    tickets = rag_store.list_jira_tickets()
-    
-    # Consolidate into single list
-    all_items = []
-    for doc in documents:
-        # Check if original file exists
-        file_path = UPLOAD_DIR / doc['id']
-        all_items.append({
-            **doc,
-            "file_type": "document",
-            "has_file": file_path.exists()
-        })
-    for ticket in tickets:
-        all_items.append({
-            **ticket,
-            "file_type": "jira_ticket",
-            "has_file": False
-        })
-    
+    # Query all knowledge items from database
+    items = db.query(KnowledgeItem).order_by(KnowledgeItem.created_at.desc()).all()
+
     return {
-        "items": all_items,
-        "total": len(all_items)
+        "items": [item.to_dict() for item in items],
+        "total": len(items)
     }
 
 @router.get("/download/{filename}")
@@ -174,9 +190,19 @@ async def download_file(filename: str):
     )
 
 @router.delete("/item/{item_type}/{item_id}")
-async def delete_item(item_type: str, item_id: str):
+async def delete_item(item_type: str, item_id: str, db: Session = Depends(get_db)):
     """Delete an item from the knowledge base."""
     try:
+        # Delete from database
+        knowledge_item = db.query(KnowledgeItem).filter(
+            KnowledgeItem.item_id == item_id,
+            KnowledgeItem.item_type == item_type
+        ).first()
+
+        if not knowledge_item:
+            raise HTTPException(status_code=404, detail="Item not found")
+
+        # Delete from Pinecone
         if item_type == "document":
             success = rag_store.delete_document(item_id)
             # Also delete the original file if it exists
@@ -187,14 +213,16 @@ async def delete_item(item_type: str, item_id: str):
             success = rag_store.delete_jira_ticket(item_id)
         else:
             raise HTTPException(status_code=400, detail="Invalid item type")
-        
-        if success:
-            return {"message": f"Successfully deleted {item_id}"}
-        else:
-            raise HTTPException(status_code=404, detail="Item not found or deletion failed")
+
+        # Delete from database
+        db.delete(knowledge_item)
+        db.commit()
+
+        return {"message": f"Successfully deleted {item_id}"}
     except HTTPException:
         raise
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
 
 @router.get("/item/{item_type}/{item_id}/content")
