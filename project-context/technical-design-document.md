@@ -32,6 +32,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    FRONTEND (Next.js)                        │
+│                  Hosted on Vercel/Static CDN                 │
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
 │  │  Dashboard   │  │   Requests   │  │  Connections │     │
@@ -42,25 +43,48 @@
 └─────────────────────────────────────────────────────────────┘
                           ↓ HTTPS/REST
 ┌─────────────────────────────────────────────────────────────┐
-│                   BACKEND (FastAPI)                          │
+│              DATABRICKS PLATFORM                             │
 │                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ API Routers  │  │   Services   │  │   AI Agents  │     │
-│  │  /requests   │  │ JiraService  │  │IntakeRouter  │     │
-│  │/connections  │  │  AIService   │  │RequestCreator│     │
-│  │  /knowledge  │  │ParsingService│  │              │     │
-│  │  /dashboard  │  │              │  │              │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │         DATABRICKS APP (Backend)                         │
+│  │                                                           │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │  │ API Routers  │  │   Services   │  │   AI Agents  │  │
+│  │  │  /requests   │  │ JiraService  │  │IntakeRouter  │  │
+│  │  │/connections  │  │  AIService   │  │RequestCreator│  │
+│  │  │  /knowledge  │  │ParsingService│  │              │  │
+│  │  │  /dashboard  │  │              │  │              │  │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘  │
+│  └─────────────────────────────────────────────────────────┤
 │                                                              │
-│  ┌──────────────┐  ┌──────────────┐                        │
-│  │  Database    │  │  RAG System  │                        │
-│  │ (SQLAlchemy) │  │  (Pinecone)  │                        │
-│  └──────────────┘  └──────────────┘                        │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │    DELTA LAKE (Data Storage)                             │
+│  │  • requests table                                        │
+│  │  • connections table                                     │
+│  │  • knowledge_items table                                 │
+│  │  • jira_metrics table                                    │
+│  │  • ACID transactions, time travel, schema evolution      │
+│  └─────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │    AI/BI GENIE (Analytics & Insights)                    │
+│  │  • Natural language queries on request data              │
+│  │  • Auto-generated dashboards                             │
+│  │  • Predictive analytics and forecasting                  │
+│  └─────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────────────────────────────────────────────────┤
+│  │    VECTOR SEARCH (RAG System)                            │
+│  │  • Native vector embeddings for similar ticket search    │
+│  │  • Documentation semantic search                         │
+│  │  • Hybrid search (keyword + semantic)                    │
+│  └─────────────────────────────────────────────────────────┤
 └─────────────────────────────────────────────────────────────┘
          ↓                    ↓                    ↓
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│ PostgreSQL   │    │    JIRA      │    │   Pinecone   │
-│   (Neon)     │    │  Cloud API   │    │  Vector DB   │
+│  Databricks  │    │    JIRA      │    │   Google     │
+│   Volumes    │    │  Connector   │    │ Generative   │
+│ (File Store) │    │  (Native)    │    │  AI (Gemini) │
 └──────────────┘    └──────────────┘    └──────────────┘
 ```
 
@@ -69,74 +93,92 @@
 #### **Frontend (Next.js + React)**
 - User interface and interactions
 - Client-side routing (App Router)
-- API calls to backend
+- API calls to Databricks App backend
 - State management
 - Form validation
 - Real-time updates (future: WebSockets)
 
-#### **Backend (FastAPI + Python)**
-- REST API endpoints
-- Business logic
-- Database operations
-- External API integration (JIRA, Google AI, Pinecone)
-- Document parsing
-- Authentication & authorization (future)
+#### **Databricks App (Backend - FastAPI + Python)**
+- REST API endpoints hosted on Databricks Apps
+- Business logic and orchestration
+- Database operations via Delta Lake
+- External API integration (JIRA Connector, Google AI)
+- Document parsing and file handling
+- Authentication & authorization via Databricks workspace
 
-#### **Database (PostgreSQL)**
-- Persistent data storage
-- Relational data (requests, connections, knowledge items)
-- Transactional integrity
+#### **Delta Lake (Data Storage)**
+- ACID-compliant data lake storage
+- Structured tables (requests, connections, knowledge items, metrics)
+- Schema evolution and versioning
+- Time travel for audit and recovery
+- Optimized parquet format for analytics
 
-#### **Vector Database (Pinecone)**
-- Semantic search
-- Document embeddings
-- JIRA ticket embeddings
-- Similarity queries
+#### **Databricks Vector Search (RAG System)**
+- Native vector embeddings storage
+- Hybrid search (keyword + semantic)
+- Similar ticket retrieval
+- Documentation semantic search
+- Auto-sync with Delta Lake tables
+
+#### **AI/BI Genie (Analytics Layer)**
+- Natural language queries on Delta Lake tables
+- Auto-generated dashboards and visualizations
+- Predictive analytics and forecasting
+- Anomaly detection
+- Self-service analytics for business users
+
+#### **Databricks JIRA Connector**
+- Native JIRA Cloud integration
+- Automated data sync from JIRA
+- Bi-directional updates
+- Field mapping and transformation
+- Real-time or scheduled sync
 
 #### **External Services**
-- **JIRA**: Ticket creation, field discovery, metrics sync
-- **Google Generative AI**: LLM for request analysis
-- **Google Embeddings**: Text embeddings for RAG
+- **Google Generative AI**: LLM for request analysis (Gemini 2.0)
+- **Databricks Volumes**: File storage for uploaded documents
+- **Databricks Workflows**: Background jobs and scheduling
 
 ### 1.3 Data Flow
 
 #### **Request Creation Flow**
 ```
 1. User uploads document → Frontend
-2. Frontend → POST /api/requests/ → Backend
-3. Backend → ParsingService.parse_document() → Extract text
-4. Backend → AIService.extract_request_details() → AI analysis
-5. AIService → RequestCreatorAgent.create_request() → Field extraction
-6. RequestCreatorAgent → RAG query → Pinecone → Similar tickets
-7. Backend → Save to database → PostgreSQL
-8. Backend → Return request object → Frontend
-9. Frontend → Update UI
+2. Frontend → POST /api/requests/ → Databricks App
+3. Databricks App → ParsingService.parse_document() → Extract text
+4. Databricks App → Store file in Databricks Volumes
+5. Databricks App → AIService.extract_request_details() → Google Gemini AI
+6. AIService → RequestCreatorAgent.create_request() → Field extraction
+7. RequestCreatorAgent → RAG query → Databricks Vector Search → Similar tickets
+8. Databricks App → Save to Delta Lake → requests table
+9. Databricks App → Return request object → Frontend
+10. Frontend → Update UI
 ```
 
 #### **Request Release Flow**
 ```
 1. User clicks "Release" → Frontend
-2. Frontend → POST /api/requests/release → Backend
-3. Backend → Fetch JIRA connection → Database
-4. Backend → JiraService.create_issue() → JIRA API
+2. Frontend → POST /api/requests/release → Databricks App
+3. Databricks App → Fetch JIRA connection → Delta Lake (connections table)
+4. Databricks App → JIRA Connector.create_issue() → JIRA API
 5. JIRA → Return issue key (PROJ-123)
-6. Backend → Update request.jira_issue_key → Database
-7. Backend → Return result → Frontend
-8. Frontend → Update UI with JIRA link
+6. Databricks App → Update request.jira_issue_key → Delta Lake
+7. Databricks App → Trigger Databricks Workflow for metrics sync
+8. Databricks App → Return result → Frontend
+9. Frontend → Update UI with JIRA link
 ```
 
-#### **JIRA Metrics Sync Flow** (Planned v1.1)
+#### **JIRA Metrics Sync Flow** (v1.1)
 ```
-1. Background job (every 5 min) → Celery/APScheduler
-2. Job → JiraMetricsService.sync_all_active_issues()
+1. Databricks Workflow (scheduled every 5 min) → Trigger sync job
+2. Job → JIRA Connector → Fetch issue updates from JIRA
 3. For each active request:
-   a. Fetch issue from JIRA API
-   b. Extract status, assignee, time tracking
-   c. Process changelog → Status history
-   d. Extract comments
-   e. Calculate derived metrics
-   f. Save to jira_metrics table
-4. Frontend polls /api/jira-metrics/summary → Display on dashboard
+   a. JIRA Connector → Fetch issue details, changelog, comments
+   b. JiraMetricsService → Process changelog → Status transitions
+   c. JiraMetricsService → Calculate derived metrics
+   d. Save to Delta Lake → jira_metrics, jira_status_history tables
+4. AI/BI Genie → Auto-refresh dashboards with latest metrics
+5. Frontend → Query /api/jira-metrics/summary → Display on dashboard
 ```
 
 ---
@@ -154,44 +196,59 @@
 | **Headless UI** | 2.2.9 | Accessible UI components |
 | **Heroicons** | 2.2.0 | SVG icon library |
 
-### 2.2 Backend
+### 2.2 Databricks Platform
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Databricks Apps** | Latest | Host FastAPI backend application |
+| **Delta Lake** | Latest | ACID-compliant data lake storage |
+| **Databricks Vector Search** | Latest | Native vector embeddings and hybrid search |
+| **Databricks AI/BI Genie** | Latest | Natural language analytics and dashboards |
+| **Databricks JIRA Connector** | Latest | Native JIRA Cloud integration |
+| **Databricks Workflows** | Latest | Scheduled jobs and orchestration |
+| **Databricks Volumes** | Latest | File storage for uploaded documents |
+| **Unity Catalog** | Latest | Unified governance and metadata management |
+
+### 2.3 Backend (Databricks App)
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **FastAPI** | 0.115.5 | Modern Python web framework |
 | **Python** | 3.11+ | Programming language |
-| **SQLAlchemy** | 2.0.36 | ORM for database |
-| **Uvicorn** | 0.32.1 | ASGI server |
-| **Mangum** | 0.17+ | ASGI-to-Lambda adapter (Vercel) |
 | **Pydantic** | 2.10.2 | Data validation |
+| **Uvicorn** | 0.32.1 | ASGI server |
+| **Delta-Spark** | Latest | Spark connector for Delta Lake |
+| **PySpark** | 3.5+ | Data processing and transformations |
 
-### 2.3 AI & Machine Learning
+### 2.4 AI & Machine Learning
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **Google Generative AI** | 0.8.0+ | LLM (Gemini 2.0 Flash) |
+| **Databricks Vector Search** | Latest | Vector embeddings and similarity search |
 | **Google Text Embeddings** | - | Text embeddings (text-embedding-004) |
-| **Pinecone** | 5.0+ | Vector database |
+| **Databricks AI/BI Genie** | Latest | Predictive analytics and forecasting |
 
-### 2.4 Integrations
+### 2.5 Integrations
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **JIRA Python SDK** | 3.8.0 | JIRA Cloud API client |
+| **Databricks JIRA Connector** | Latest | Native JIRA Cloud integration |
+| **JIRA Python SDK** | 3.8.0 | JIRA Cloud API client (fallback) |
 | **Slack SDK** | 3.33.4 | Slack API (future) |
 | **pypdf** | 4.0+ | PDF parsing |
 | **python-docx** | 1.1+ | Word document parsing |
 | **python-pptx** | 0.6.21 | PowerPoint parsing |
 
-### 2.5 Infrastructure
+### 2.6 Infrastructure
 
 | Technology | Purpose |
 |------------|---------|
-| **PostgreSQL (Neon)** | Production database |
-| **SQLite** | Local development database |
-| **Vercel** | Frontend & backend hosting |
-| **Redis** | Caching & task queue (future) |
-| **Celery** | Background jobs (future) |
+| **Databricks Workspace** | Unified development and production environment |
+| **Delta Lake Tables** | Production data storage |
+| **Databricks Clusters** | Compute resources for backend and jobs |
+| **Vercel** | Frontend hosting (static CDN) |
+| **Databricks Secrets** | Secure credential management |
 
 ---
 
@@ -1443,6 +1500,578 @@ def create_jira_issue(request: Request, connection: Connection) -> str:
 
 ---
 
+## 7.4 Leveraging Databricks Platform Features
+
+### 7.4.1 Databricks Apps (Backend Hosting)
+
+**Purpose**: Host the FastAPI backend application within Databricks workspace
+
+**Benefits**:
+- Unified platform for code, data, and compute
+- Native access to Delta Lake, Vector Search, and Unity Catalog
+- Simplified deployment and scaling
+- Integrated authentication and authorization
+- No need for external serverless hosting
+
+**Architecture**:
+
+```python
+# app.py - Databricks App entry point
+from fastapi import FastAPI
+from databricks import sql
+import os
+
+app = FastAPI(title="JIRA DataOps Agent API")
+
+# Access Delta Lake tables directly
+def get_requests_from_delta():
+    connection = sql.connect(
+        server_hostname=os.getenv("DATABRICKS_SERVER_HOSTNAME"),
+        http_path=os.getenv("DATABRICKS_HTTP_PATH"),
+        access_token=os.getenv("DATABRICKS_TOKEN")
+    )
+
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM main.jira_agent.requests WHERE status = 'Under Review'")
+    return cursor.fetchall()
+
+@app.get("/api/requests/")
+async def list_requests():
+    requests = get_requests_from_delta()
+    return {"items": requests}
+```
+
+**Deployment**:
+```bash
+# Deploy to Databricks Apps
+databricks apps create \
+  --app-name jira-datops-agent \
+  --source-code-path ./backend \
+  --env-vars DATABASE_URL=<delta-lake-catalog>
+```
+
+---
+
+### 7.4.2 Delta Lake (Data Storage)
+
+**Purpose**: ACID-compliant data lake for all application data
+
+**Key Features**:
+- **ACID Transactions**: Reliable reads and writes
+- **Time Travel**: Query historical versions, audit trail
+- **Schema Evolution**: Add/modify columns without breaking changes
+- **Optimized Performance**: Parquet format with Z-ordering
+- **Unified Batch & Streaming**: Single table for both workloads
+
+**Table Structure**:
+
+```sql
+-- Create catalog and schema
+CREATE CATALOG IF NOT EXISTS main;
+CREATE SCHEMA IF NOT EXISTS main.jira_agent;
+
+-- Requests table
+CREATE TABLE IF NOT EXISTS main.jira_agent.requests (
+  id BIGINT GENERATED ALWAYS AS IDENTITY,
+  summary STRING NOT NULL,
+  description STRING,
+  status STRING DEFAULT 'Under Review',
+  source_tag STRING,
+  source_content STRING,
+  issue_type STRING,
+  priority STRING,
+  jira_issue_key STRING,
+  confidence_score DOUBLE,
+  extracted_fields STRING,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+) USING DELTA
+TBLPROPERTIES (
+  'delta.enableChangeDataFeed' = 'true',
+  'delta.autoOptimize.optimizeWrite' = 'true',
+  'delta.autoOptimize.autoCompact' = 'true'
+);
+
+-- Optimize table for common queries
+OPTIMIZE main.jira_agent.requests ZORDER BY (status, created_at);
+```
+
+**Time Travel for Audit**:
+
+```sql
+-- View historical state of a request
+SELECT * FROM main.jira_agent.requests VERSION AS OF 10
+WHERE id = 123;
+
+-- View all changes in last 7 days
+SELECT * FROM main.jira_agent.requests TIMESTAMP AS OF '2026-01-08'
+WHERE id = 123;
+```
+
+**Python Access**:
+
+```python
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+
+# Read from Delta Lake
+requests_df = spark.table("main.jira_agent.requests")
+
+# Write to Delta Lake
+new_request_df.write \
+    .format("delta") \
+    .mode("append") \
+    .saveAsTable("main.jira_agent.requests")
+
+# Merge (upsert) operation
+from delta.tables import DeltaTable
+
+delta_table = DeltaTable.forName(spark, "main.jira_agent.requests")
+
+delta_table.alias("target").merge(
+    new_data_df.alias("source"),
+    "target.id = source.id"
+).whenMatchedUpdateAll() \
+ .whenNotMatchedInsertAll() \
+ .execute()
+```
+
+---
+
+### 7.4.3 Databricks Vector Search (RAG System)
+
+**Purpose**: Native vector embeddings and hybrid search for similar tickets and documentation
+
+**Benefits**:
+- Auto-sync with Delta Lake tables (no manual indexing)
+- Hybrid search (keyword + semantic)
+- Built-in embedding generation
+- Integrated with Unity Catalog for governance
+
+**Architecture**:
+
+```
+Delta Lake Table → Vector Search Index → Query API
+    (Source)         (Auto-Sync)        (Hybrid Search)
+```
+
+**Setup**:
+
+```python
+from databricks.vector_search.client import VectorSearchClient
+
+vsc = VectorSearchClient()
+
+# Create vector search endpoint
+vsc.create_endpoint(
+    name="jira-agent-endpoint"
+)
+
+# Create vector search index for JIRA tickets
+vsc.create_index(
+    endpoint_name="jira-agent-endpoint",
+    index_name="main.jira_agent.jira_tickets_index",
+    source_table_name="main.jira_agent.requests",
+    primary_key="id",
+    embedding_source_column="description",  # Column to embed
+    embedding_model_endpoint="databricks-bge-large-en"  # Databricks-hosted model
+)
+
+# Create index for documentation
+vsc.create_index(
+    endpoint_name="jira-agent-endpoint",
+    index_name="main.jira_agent.documentation_index",
+    source_table_name="main.jira_agent.knowledge_items",
+    primary_key="item_id",
+    embedding_source_column="content",
+    embedding_model_endpoint="databricks-bge-large-en"
+)
+```
+
+**Query Similar Tickets**:
+
+```python
+# Hybrid search (keyword + semantic)
+results = vsc.get_index(
+    endpoint_name="jira-agent-endpoint",
+    index_name="main.jira_agent.jira_tickets_index"
+).similarity_search(
+    query_text="Need Q4 sales data for board presentation",
+    columns=["id", "summary", "description", "jira_issue_key"],
+    num_results=5
+)
+
+# Results are ranked by similarity score
+for result in results.get('result', {}).get('data_array', []):
+    print(f"JIRA Key: {result['jira_issue_key']}, Score: {result['score']}")
+```
+
+**Benefits over Pinecone**:
+- No external service, all within Databricks
+- Auto-sync with Delta Lake (no manual ETL)
+- Unified governance with Unity Catalog
+- Lower latency (same platform)
+- Cost savings (no external API calls)
+
+---
+
+### 7.4.4 AI/BI Genie (Analytics & Insights)
+
+**Purpose**: Natural language queries and auto-generated dashboards for business users
+
+**Key Features**:
+- **Natural Language SQL**: Ask questions in English, get SQL queries
+- **Auto-Generated Dashboards**: Genie creates visualizations automatically
+- **Predictive Analytics**: Forecast request volumes, identify trends
+- **Anomaly Detection**: Alert on unusual patterns
+
+**Use Cases**:
+
+#### 1. **Natural Language Queries**
+
+Business users can ask questions directly:
+
+```
+User: "Show me all high-priority requests from last week"
+
+Genie generates and executes:
+SELECT * FROM main.jira_agent.requests
+WHERE priority = 'High'
+  AND created_at >= CURRENT_DATE() - INTERVAL 7 DAYS
+```
+
+```
+User: "What's the average time to resolve requests by issue type?"
+
+Genie generates:
+SELECT
+  issue_type,
+  AVG(time_to_resolve_seconds) / 3600 as avg_hours_to_resolve
+FROM main.jira_agent.jira_metrics
+GROUP BY issue_type
+ORDER BY avg_hours_to_resolve DESC
+```
+
+#### 2. **Auto-Generated Dashboards**
+
+Genie automatically creates dashboards based on common questions:
+
+- Request volume trends (daily, weekly, monthly)
+- Approval rate by confidence score
+- Time to resolve by issue type
+- Bottleneck identification (which status has longest duration)
+- Requester leaderboard (most active users)
+
+**Dashboard Configuration**:
+
+```sql
+-- Genie creates materialized views for fast dashboard queries
+CREATE MATERIALIZED VIEW main.jira_agent.request_metrics_mv AS
+SELECT
+  DATE(created_at) as request_date,
+  status,
+  issue_type,
+  priority,
+  COUNT(*) as request_count,
+  AVG(confidence_score) as avg_confidence
+FROM main.jira_agent.requests
+GROUP BY DATE(created_at), status, issue_type, priority;
+
+-- Refresh every 5 minutes
+ALTER MATERIALIZED VIEW main.jira_agent.request_metrics_mv
+SET TBLPROPERTIES ('pipelines.trigger' = 'every 5 minutes');
+```
+
+#### 3. **Predictive Analytics**
+
+Genie can forecast future request volumes:
+
+```
+User: "Predict request volume for next month"
+
+Genie uses ML models:
+- Historical trends
+- Seasonality patterns
+- Growth rates
+- Output: Forecasted daily request counts with confidence intervals
+```
+
+**Python API**:
+
+```python
+from databricks.sdk import WorkspaceClient
+
+w = WorkspaceClient()
+
+# Ask Genie a question
+response = w.genie.ask_question(
+    space_id="<genie-space-id>",
+    question="Show me all requests that took longer than 48 hours to resolve"
+)
+
+# Genie returns SQL + results
+print(response.query)  # Generated SQL
+print(response.results)  # Query results
+```
+
+---
+
+### 7.4.5 Databricks JIRA Connector
+
+**Purpose**: Native bi-directional integration between Databricks and JIRA Cloud
+
+**Benefits**:
+- No custom API code needed for basic operations
+- Automated data sync from JIRA to Delta Lake
+- Real-time or scheduled sync
+- Built-in error handling and retry logic
+- Unified governance
+
+**Architecture**:
+
+```
+JIRA Cloud ←→ Databricks JIRA Connector ←→ Delta Lake
+   (API)         (Native Integration)      (jira_metrics table)
+```
+
+**Setup**:
+
+```python
+# Configure JIRA Connector in Databricks
+from databricks.connect.jira import JIRAConnector
+
+connector = JIRAConnector(
+    jira_url="https://company.atlassian.net",
+    email="user@company.com",
+    api_token=dbutils.secrets.get(scope="jira", key="api_token"),
+    project_key="PROJ"
+)
+
+# Sync JIRA issues to Delta Lake
+connector.sync_issues_to_delta(
+    target_table="main.jira_agent.jira_issues",
+    jql_filter="project = PROJ AND created >= -30d",
+    sync_mode="incremental"  # Only fetch new/updated issues
+)
+```
+
+**Scheduled Sync with Databricks Workflows**:
+
+```python
+# Notebook: sync_jira_metrics.py
+# This runs on a schedule to keep metrics up to date
+
+from databricks.jira import JIRAConnector
+from pyspark.sql.functions import col, current_timestamp
+
+# Fetch all active requests from Delta Lake
+requests_df = spark.table("main.jira_agent.requests") \
+    .filter(col("jira_issue_key").isNotNull())
+
+jira_keys = [row.jira_issue_key for row in requests_df.collect()]
+
+# Batch fetch from JIRA
+connector = JIRAConnector(...)
+jira_data = connector.get_issues(issue_keys=jira_keys, include_changelog=True)
+
+# Process and save to jira_metrics table
+metrics_df = process_jira_data(jira_data)
+metrics_df.write \
+    .format("delta") \
+    .mode("overwrite") \
+    .option("mergeSchema", "true") \
+    .saveAsTable("main.jira_agent.jira_metrics")
+```
+
+**Workflow Schedule**:
+
+```yaml
+# databricks-workflow.yml
+name: JIRA Metrics Sync
+schedule:
+  quartz_cron_expression: "0 */5 * * * ?" # Every 5 minutes
+tasks:
+  - task_key: sync_jira_metrics
+    notebook_task:
+      notebook_path: /Workspace/jira-agent/jobs/sync_jira_metrics
+      source: WORKSPACE
+    cluster_spec:
+      cluster_name: jira-sync-cluster
+      spark_version: 14.3.x-scala2.12
+      node_type_id: i3.xlarge
+      num_workers: 1
+```
+
+---
+
+### 7.4.6 Databricks Workflows (Background Jobs)
+
+**Purpose**: Orchestrate scheduled jobs and long-running tasks
+
+**Use Cases**:
+
+1. **JIRA Metrics Sync** (every 5 minutes)
+2. **Email Monitoring** (every 1 minute)
+3. **Knowledge Base Indexing** (on-demand)
+4. **Analytics Refresh** (every hour)
+5. **Cleanup Old Requests** (daily)
+
+**Example Workflow**:
+
+```python
+# Workflow: Email Monitoring and Request Creation
+# Runs every minute to check for new emails
+
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.jobs import Task, NotebookTask
+
+w = WorkspaceClient()
+
+# Define workflow
+job = w.jobs.create(
+    name="Email Request Monitoring",
+    tasks=[
+        Task(
+            task_key="monitor_email",
+            notebook_task=NotebookTask(
+                notebook_path="/Workspace/jira-agent/jobs/monitor_email",
+                source="WORKSPACE"
+            ),
+            job_cluster_key="shared-cluster"
+        ),
+        Task(
+            task_key="process_requests",
+            depends_on=[{"task_key": "monitor_email"}],
+            notebook_task=NotebookTask(
+                notebook_path="/Workspace/jira-agent/jobs/process_requests",
+                source="WORKSPACE"
+            ),
+            job_cluster_key="shared-cluster"
+        )
+    ],
+    schedule={"quartz_cron_expression": "0 * * * * ?", "timezone_id": "America/Los_Angeles"}
+)
+```
+
+**Job Monitoring**:
+
+```python
+# Check job status
+run = w.jobs.run_now(job_id=job.job_id)
+
+# Monitor run
+run_status = w.jobs.get_run(run_id=run.run_id)
+print(f"Status: {run_status.state.life_cycle_state}")
+
+# Get run output
+if run_status.state.life_cycle_state == "TERMINATED":
+    output = w.jobs.get_run_output(run_id=run.run_id)
+    print(f"Output: {output}")
+```
+
+---
+
+### 7.4.7 Databricks Volumes (File Storage)
+
+**Purpose**: Store uploaded documents (PDFs, Word, PowerPoint) within Databricks
+
+**Benefits**:
+- No external storage (S3, Azure Blob) needed
+- Integrated with Unity Catalog
+- Access control via Databricks permissions
+- Versioning and lifecycle management
+
+**Setup**:
+
+```sql
+-- Create volume for uploaded documents
+CREATE VOLUME IF NOT EXISTS main.jira_agent.uploads;
+```
+
+**File Upload**:
+
+```python
+from databricks.sdk import WorkspaceClient
+import os
+
+w = WorkspaceClient()
+
+# Upload file to Databricks Volume
+def upload_document(file_path: str, item_id: str):
+    volume_path = f"/Volumes/main/jira_agent/uploads/{item_id}/"
+
+    with open(file_path, 'rb') as f:
+        w.files.upload(
+            file_path=volume_path + os.path.basename(file_path),
+            contents=f.read(),
+            overwrite=True
+        )
+
+    return volume_path + os.path.basename(file_path)
+
+# Read file from volume
+def read_document(volume_path: str):
+    file_info = w.files.download(file_path=volume_path)
+    return file_info.contents
+```
+
+**Access from Spark**:
+
+```python
+# Read PDF from volume using Spark
+pdf_df = spark.read.format("binaryFile").load("/Volumes/main/jira_agent/uploads/")
+
+# Extract text using UDF
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+
+@udf(returnType=StringType())
+def extract_pdf_text(binary_content):
+    import pypdf
+    pdf_reader = pypdf.PdfReader(io.BytesIO(binary_content))
+    return "\n".join(page.extract_text() for page in pdf_reader.pages)
+
+pdf_df = pdf_df.withColumn("text", extract_pdf_text("content"))
+```
+
+---
+
+### 7.4.8 Unity Catalog (Governance)
+
+**Purpose**: Unified governance for data, AI, and analytics
+
+**Features**:
+- Centralized access control
+- Data lineage tracking
+- Audit logging
+- Data discovery
+- Credential management
+
+**Security Setup**:
+
+```sql
+-- Grant permissions to JIRA Agent service principal
+GRANT USE CATALOG ON CATALOG main TO `jira-agent-service-principal`;
+GRANT USE SCHEMA ON SCHEMA main.jira_agent TO `jira-agent-service-principal`;
+GRANT SELECT, MODIFY ON TABLE main.jira_agent.requests TO `jira-agent-service-principal`;
+
+-- Create read-only user for analytics
+GRANT USE CATALOG ON CATALOG main TO `analytics-users`;
+GRANT USE SCHEMA ON SCHEMA main.jira_agent TO `analytics-users`;
+GRANT SELECT ON ALL TABLES IN SCHEMA main.jira_agent TO `analytics-users`;
+```
+
+**Data Lineage**:
+
+Unity Catalog automatically tracks:
+- Which tables were read to create jira_metrics
+- Which jobs write to requests table
+- Which users query knowledge_items
+- Full audit trail of all data access
+
+---
+
 ## 8. Frontend Architecture
 
 ### 8.1 Directory Structure
@@ -1698,93 +2327,282 @@ CREATE INDEX idx_knowledge_items_item_type ON knowledge_items(item_type);
 
 ## 10. Deployment Architecture
 
-### 10.1 Vercel Deployment
+### 10.1 Hybrid Deployment (Databricks + Vercel)
 
 ```
 GitHub Repository
        ↓
    Git Push
        ↓
-┌──────────────────────┐
-│  Vercel Platform     │
-├──────────────────────┤
-│                      │
-│  Frontend Build:     │
-│  - npm install       │
-│  - npm run build     │
-│  - Deploy to CDN     │
-│                      │
-│  Backend Build:      │
-│  - pip install       │
-│  - Create functions  │
-│  - Deploy serverless │
-│                      │
-└──────────────────────┘
-       ↓
-┌──────────────────────┐
-│  Production URLs     │
-├──────────────────────┤
-│  Frontend:           │
-│  jira-agent.vercel   │
-│  .app                │
-│                      │
-│  Backend API:        │
-│  jira-agent-api      │
-│  .vercel.app         │
-└──────────────────────┘
+┌──────────────────────┐         ┌──────────────────────┐
+│  Vercel Platform     │         │  Databricks Platform │
+├──────────────────────┤         ├──────────────────────┤
+│                      │         │                      │
+│  Frontend Build:     │         │  Backend Deploy:     │
+│  - npm install       │         │  - Databricks App    │
+│  - npm run build     │         │  - FastAPI service   │
+│  - Deploy to CDN     │  HTTPS  │  - Delta Lake access │
+│                      │◄──────►│  - Vector Search     │
+│                      │         │  - AI/BI Genie       │
+│                      │         │  - JIRA Connector    │
+└──────────────────────┘         └──────────────────────┘
+       ↓                                   ↓
+┌──────────────────────┐         ┌──────────────────────┐
+│  Production URLs     │         │  Databricks Resources│
+├──────────────────────┤         ├──────────────────────┤
+│  Frontend:           │         │  Backend API:        │
+│  jira-agent.vercel   │         │  <workspace>.cloud   │
+│  .app                │         │  .databricks.com/    │
+│                      │         │  apps/jira-agent     │
+└──────────────────────┘         │                      │
+                                 │  Data:               │
+                                 │  Delta Lake tables   │
+                                 │  in Unity Catalog    │
+                                 └──────────────────────┘
 ```
 
 ### 10.2 Environment Variables
 
 **Frontend (.env.local)**:
 ```bash
-NEXT_PUBLIC_API_URL=https://jira-agent-api.vercel.app
+NEXT_PUBLIC_API_URL=https://<workspace>.cloud.databricks.com/apps/jira-agent
 ```
 
-**Backend (.env)**:
+**Backend (Databricks Secrets)**:
 ```bash
-# Database
-DATABASE_URL=postgresql://user:pass@host/db
+# Databricks connection (auto-configured in Databricks Apps)
+DATABRICKS_SERVER_HOSTNAME=<workspace>.cloud.databricks.com
+DATABRICKS_HTTP_PATH=/sql/1.0/warehouses/<warehouse-id>
+DATABRICKS_TOKEN=<service-principal-token>
 
-# JIRA (optional if using connections table)
+# Unity Catalog
+CATALOG_NAME=main
+SCHEMA_NAME=jira_agent
+
+# JIRA (stored in Databricks Secrets)
 JIRA_URL=https://company.atlassian.net
 JIRA_EMAIL=user@company.com
-JIRA_API_TOKEN=token_here
+JIRA_API_TOKEN={{secrets/jira/api_token}}
 
-# AI & Vector DB
-GOOGLE_API_KEY=google_api_key
-PINECONE_API_KEY=pinecone_api_key
+# AI Services
+GOOGLE_API_KEY={{secrets/ai/google_api_key}}
 
 # Application
 ENVIRONMENT=production
 LOG_LEVEL=INFO
 ```
 
-### 10.3 Vercel Configuration
+### 10.3 Databricks App Configuration
 
-**vercel.json** (Backend):
+**app.yaml** (Databricks App):
+
+```yaml
+# Databricks App configuration
+name: jira-datops-agent
+display_name: "JIRA DataOps Agent"
+description: "AI-powered work intake and JIRA ticket creation"
+
+# Compute configuration
+compute:
+  cluster_id: <cluster-id>  # Or use SQL Warehouse
+  # Alternatively, use serverless compute:
+  serverless: true
+
+# Environment variables
+env:
+  CATALOG_NAME: main
+  SCHEMA_NAME: jira_agent
+  GOOGLE_API_KEY: "{{secrets/ai/google_api_key}}"
+  JIRA_API_TOKEN: "{{secrets/jira/api_token}}"
+
+# Application entry point
+entrypoint:
+  command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+  working_directory: /backend
+
+# Health check
+health_check:
+  path: /health
+  interval: 30
+  timeout: 5
+  retries: 3
+
+# Resource limits
+resources:
+  memory: 4Gi
+  cpu: 2
+
+# Permissions
+permissions:
+  - catalog: main
+    schema: jira_agent
+    privileges: [SELECT, MODIFY, CREATE]
+  - vector_search_endpoint: jira-agent-endpoint
+    privileges: [QUERY]
+```
+
+**Deployment**:
+
+```bash
+# Deploy Databricks App
+databricks apps deploy \
+  --app-name jira-datops-agent \
+  --source-code-path ./backend \
+  --config app.yaml
+
+# Check deployment status
+databricks apps get --app-name jira-datops-agent
+
+# View logs
+databricks apps logs --app-name jira-datops-agent --tail
+```
+
+### 10.4 Databricks Workspace Setup
+
+**1. Create Unity Catalog Resources**:
+
+```sql
+-- Create catalog and schema
+CREATE CATALOG IF NOT EXISTS main;
+CREATE SCHEMA IF NOT EXISTS main.jira_agent;
+
+-- Create Delta Lake tables
+CREATE TABLE main.jira_agent.requests (...);
+CREATE TABLE main.jira_agent.connections (...);
+CREATE TABLE main.jira_agent.knowledge_items (...);
+CREATE TABLE main.jira_agent.jira_metrics (...);
+
+-- Create volume for file uploads
+CREATE VOLUME main.jira_agent.uploads;
+```
+
+**2. Setup Vector Search**:
+
+```python
+from databricks.vector_search.client import VectorSearchClient
+
+vsc = VectorSearchClient()
+
+# Create endpoint
+vsc.create_endpoint(name="jira-agent-endpoint")
+
+# Create indexes
+vsc.create_index(
+    endpoint_name="jira-agent-endpoint",
+    index_name="main.jira_agent.jira_tickets_index",
+    source_table_name="main.jira_agent.requests",
+    primary_key="id",
+    embedding_source_column="description",
+    embedding_model_endpoint="databricks-bge-large-en"
+)
+```
+
+**3. Configure Secrets**:
+
+```bash
+# Create secret scope
+databricks secrets create-scope --scope jira
+
+# Add JIRA credentials
+databricks secrets put --scope jira --key api_token
+databricks secrets put --scope jira --key email
+
+# Create AI secrets scope
+databricks secrets create-scope --scope ai
+databricks secrets put --scope ai --key google_api_key
+```
+
+**4. Setup JIRA Connector**:
+
+```python
+# Configure in Databricks workspace
+from databricks.connect.jira import JIRAConnector
+
+connector = JIRAConnector(
+    jira_url="https://company.atlassian.net",
+    email=dbutils.secrets.get(scope="jira", key="email"),
+    api_token=dbutils.secrets.get(scope="jira", key="api_token"),
+    project_key="PROJ"
+)
+
+# Test connection
+connector.test_connection()
+```
+
+**5. Setup Databricks Workflows**:
+
+```python
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.jobs import Task, NotebookTask, CronSchedule
+
+w = WorkspaceClient()
+
+# Create JIRA sync job
+job = w.jobs.create(
+    name="JIRA Metrics Sync",
+    tasks=[
+        Task(
+            task_key="sync_metrics",
+            notebook_task=NotebookTask(
+                notebook_path="/Workspace/jira-agent/jobs/sync_jira_metrics",
+                source="WORKSPACE"
+            )
+        )
+    ],
+    schedule=CronSchedule(
+        quartz_cron_expression="0 */5 * * * ?",  # Every 5 minutes
+        timezone_id="America/Los_Angeles"
+    )
+)
+```
+
+**6. Setup AI/BI Genie Space**:
+
+```python
+from databricks.sdk import WorkspaceClient
+
+w = WorkspaceClient()
+
+# Create Genie space for analytics
+genie_space = w.genie.create_space(
+    name="JIRA DataOps Analytics",
+    description="Natural language analytics for JIRA DataOps Agent",
+    tables=[
+        "main.jira_agent.requests",
+        "main.jira_agent.jira_metrics",
+        "main.jira_agent.jira_status_history"
+    ]
+)
+```
+
+### 10.5 Frontend Deployment (Vercel)
+
+**vercel.json** (Frontend):
 
 ```json
 {
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
+      "src": "package.json",
+      "use": "@vercel/next"
     }
   ],
   "env": {
-    "DATABASE_URL": "@database_url",
-    "GOOGLE_API_KEY": "@google_api_key",
-    "PINECONE_API_KEY": "@pinecone_api_key"
+    "NEXT_PUBLIC_API_URL": "https://<workspace>.cloud.databricks.com/apps/jira-agent"
   }
 }
+```
+
+**Deploy Frontend**:
+
+```bash
+# Deploy to Vercel
+cd frontend
+vercel deploy --prod
+
+# Set environment variable
+vercel env add NEXT_PUBLIC_API_URL production
 ```
 
 ---

@@ -24,88 +24,33 @@
 
 ## 1. Executive Summary
 
-### 1.1 Product Vision
-
 The JIRA DataOps Agent is an intelligent automation platform that transforms how DataOps and MLOps teams manage work intake and ticket creation. By leveraging AI and pattern recognition, the system reduces ticket creation time from 10+ minutes to under 60 seconds while maintaining data privacy and compliance.
 
-### 1.2 Key Value Propositions
+### Key Value Propositions
 
-- **90% Time Savings**: Reduce ticket creation from 10+ minutes to <1 minute
-- **85% Accuracy**: AI extracts JIRA fields with 85%+ accuracy
-- **Multi-Channel**: Capture requests from email, Slack, file uploads, web forms
-- **Privacy-First**: On-premise AI processing ensures sensitive data never leaves organization
-- **Intelligent Learning**: System improves accuracy by learning from corrections
-- **End-to-End Visibility**: Track requests from submission through JIRA completion
-
-### 1.3 Business Impact
-
-**Current State (Manual Process)**:
-- PMs spend 2-3 hours daily writing JIRA tickets
-- 10-15 minutes per ticket average
-- 20-30 tickets processed per day per PM
-- High context-switching cost
-- Inconsistent ticket quality
-
-**Future State (With JIRA DataOps Agent)**:
-- <1 minute per ticket average
-- 50-100 tickets processed per day per PM
-- 2-3 hours per day saved per PM
-- Consistent, high-quality tickets
-- Complete audit trail and analytics
+| Metric | Current State | With JIRA DataOps Agent | Impact |
+|--------|--------------|------------------------|---------|
+| **Time per Ticket** | 10-15 minutes | <1 minute | **90% time savings** |
+| **Tickets per PM/Day** | 20-30 tickets | 50-100 tickets | **2-3x productivity** |
+| **PM Time Saved** | 0 hours | 2-3 hours/day | **30-40% capacity freed** |
+| **AI Accuracy** | N/A | 85%+ field extraction | **High-quality automation** |
+| **Request Capture** | Manual, scattered | Multi-channel, centralized | **95%+ capture rate** |
+| **Ticket Quality** | Inconsistent | Consistent, context-aware | **Complete audit trail** |
 
 ---
 
 ## 2. Problem Statement
 
-### 2.1 Current Challenges
+DataOps and MLOps teams handle constant ad-hoc requests through multiple channels (email, Slack, meetings), unlike product teams with planned sprints. This creates significant operational challenges:
 
-DataOps and MLOps teams face unique operational challenges:
-
-#### **High Volume of Unplanned Work**
-Unlike product teams with planned sprints, ops teams handle constant ad-hoc requests through multiple channels (email, Slack, meetings, calls).
-
-#### **Manual Ticket Creation Burden**
-- Project Managers spend 2-3 hours daily writing JIRA tickets
-- Each ticket takes 10-15 minutes to create
-- Copy-paste from emails, meeting notes, Slack messages
-- Repetitive manual field population
-
-#### **Scattered Request Sources**
-- Work intake through emails, chats, calls, meetings
-- No centralized processing
-- Easy to miss or lose requests
-- Difficult to track and prioritize
-
-#### **Context Loss**
-- Requests lack historical context
-- Repeated clarifications cause delays
-- No knowledge of similar past requests
-- Missing documentation references
-
-#### **Pattern Blindness**
-- Similar requests processed manually each time
-- No learning from repetition
-- Unable to identify trends or bottlenecks
-- No predictive insights
-
-### 2.2 User Pain Points
-
-**For Project Managers**:
-- "I spend half my day just writing tickets"
-- "I copy-paste from emails and still miss important details"
-- "I have to dig through Slack to find all the information"
-- "Same types of requests come in weekly, but I can't automate them"
-
-**For Team Leads**:
-- "I don't have visibility into request volumes or patterns"
-- "Can't measure team efficiency or bottlenecks"
-- "No way to forecast capacity needs"
-
-**For Requestors (Data Engineers, Analysts)**:
-- "Not sure if my request was received"
-- "Don't know the status of my request"
-- "Have to follow up multiple times"
-- "Inconsistent response times"
+| Challenge | Impact | User Pain Point |
+|-----------|--------|----------------|
+| **Manual Ticket Creation** | PMs spend 2-3 hours daily writing tickets (10-15 min each) | "I spend half my day just writing tickets" |
+| **Scattered Request Sources** | Requests through email, Slack, calls - easy to miss or lose | "I have to dig through Slack to find all the information" |
+| **Context Loss** | Repeated clarifications, no knowledge of similar past requests | "I copy-paste from emails and still miss important details" |
+| **Pattern Blindness** | Similar requests processed manually each time, no learning | "Same types of requests come in weekly, but I can't automate them" |
+| **No Visibility** | No metrics on volumes, patterns, bottlenecks, or capacity | "Can't measure team efficiency or forecast capacity needs" |
+| **Poor Requester Experience** | No status updates, inconsistent response times | "Not sure if my request was received or its status" |
 
 ---
 
@@ -166,43 +111,19 @@ Request Input → AI Analysis → Human Review → JIRA Release → Performance 
 
 ### 4.1 Primary Users
 
-#### **DataOps/MLOps Project Managers**
-- **Role**: Manage request queue, create JIRA tickets, track progress
-- **Pain Points**: Time-consuming ticket creation, context switching, repetitive work
-- **Goals**: Process more requests in less time, maintain quality, reduce manual work
-- **Success Criteria**: 2-3 hours saved daily, 80%+ first-pass approval rate
-
-#### **Team Leads**
-- **Role**: Oversee team operations, optimize workflows, report to management
-- **Pain Points**: No visibility into bottlenecks, can't measure efficiency, no forecasting
-- **Goals**: Optimize team productivity, identify patterns, plan capacity
-- **Success Criteria**: Real-time dashboards, trend insights, data-driven decisions
-
-#### **System Administrators**
-- **Role**: Configure integrations, manage connections, monitor system health
-- **Pain Points**: Complex integrations, maintenance overhead, troubleshooting
-- **Goals**: Reliable automation, minimal maintenance, secure operations
-- **Success Criteria**: 99.5% uptime, zero data breaches, easy configuration
+| User Type | Role | Key Pain Points | Success Criteria |
+|-----------|------|-----------------|------------------|
+| **DataOps/MLOps Project Managers** | Manage request queue, create JIRA tickets, track progress | Time-consuming ticket creation, context switching, repetitive work | 2-3 hours saved daily, 80%+ first-pass approval rate |
+| **Team Leads** | Oversee team operations, optimize workflows, report to management | No visibility into bottlenecks, can't measure efficiency, no forecasting | Real-time dashboards, trend insights, data-driven decisions |
+| **System Administrators** | Configure integrations, manage connections, monitor system health | Complex integrations, maintenance overhead, troubleshooting | 99.5% uptime, zero data breaches, easy configuration |
 
 ### 4.2 Secondary Users
 
-#### **Data Engineers**
-- **Role**: Submit data requests, track status
-- **Pain Points**: Unclear submission process, no status visibility, slow response
-- **Goals**: Easy submission, real-time status, fast turnaround
-- **Success Criteria**: <5 minutes to submit, always know status
-
-#### **Product Managers**
-- **Role**: Request data for analysis, monitor delivery
-- **Pain Points**: Don't know how to request, unclear timelines
-- **Goals**: Simple request process, predictable timelines
-- **Success Criteria**: Clear request process, estimated completion dates
-
-#### **Business Analysts**
-- **Role**: Track request patterns, analyze team performance
-- **Pain Points**: No analytics, manual report generation
-- **Goals**: Automated reporting, trend analysis
-- **Success Criteria**: Self-service analytics, exportable reports
+| User Type | Role | Key Pain Points | Success Criteria |
+|-----------|------|-----------------|------------------|
+| **Data Engineers** | Submit data requests, track status | Unclear submission process, no status visibility, slow response | <5 minutes to submit, always know status |
+| **Product Managers** | Request data for analysis, monitor delivery | Don't know how to request, unclear timelines | Clear request process, estimated completion dates |
+| **Business Analysts** | Track request patterns, analyze team performance | No analytics, manual report generation | Self-service analytics, exportable reports |
 
 ---
 
@@ -394,190 +315,35 @@ Request Input → AI Analysis → Human Review → JIRA Release → Performance 
 
 ### 6.1 Core Features (MVP - v1.0)
 
-#### **F1: Multi-Channel Request Intake**
-**Problem**: Requests scattered across email, Slack, files
-**Solution**: Unified intake processing from all channels
-**User Benefit**: Never miss a request, all in one place
-**Status**: ✅ Manual + File Upload (Implemented), 🔄 Email/Slack (Planned v1.2)
-
-**Capabilities**:
-- ✅ Manual request creation via web form
-- ✅ File upload (PDF, Word, PowerPoint, CSV)
-- ✅ Document text extraction
-- 🔄 Email monitoring (IMAP)
-- 🔄 Slack integration (webhooks)
-
----
-
-#### **F2: AI-Powered Request Analysis**
-**Problem**: Manual field extraction takes 5-10 minutes per ticket
-**Solution**: AI extracts JIRA fields automatically
-**User Benefit**: 90% time savings on data entry
-**Status**: ✅ Implemented
-
-**Capabilities**:
-- ✅ Request type classification (Bug, Story, Task, etc.)
-- ✅ Field extraction (summary, description, priority, etc.)
-- ✅ Dynamic field mapping per JIRA project
-- ✅ Confidence scoring (0-100%)
-- ✅ Fallback to defaults when uncertain
-
----
-
-#### **F3: Knowledge Base & Context Retrieval**
-**Problem**: No context from past tickets or documentation
-**Solution**: RAG-powered search finds similar tickets and relevant docs
-**User Benefit**: Consistent tickets with historical context
-**Status**: ✅ Implemented
-
-**Capabilities**:
-- ✅ Upload documentation (PDF, Word, PowerPoint)
-- ✅ Semantic search over past tickets
-- ✅ Semantic search over documentation
-- ✅ Link relevant context to requests
-- 🔄 JIRA ticket history import (Planned)
-
----
-
-#### **F4: Request Review & Approval Queue**
-**Problem**: No structured review process
-**Solution**: Queue with filtering, search, bulk operations
-**User Benefit**: Efficient request processing
-**Status**: ✅ Implemented
-
-**Capabilities**:
-- ✅ Queue view (card and table layouts)
-- ✅ Filter by status, source, confidence, priority
-- ✅ Sort by date, confidence, priority
-- ✅ Search by keyword
-- ✅ Bulk approve/reject
-- ✅ Request detail modal with side-by-side comparison
-
----
-
-#### **F5: JIRA Integration**
-**Problem**: Manual ticket creation in JIRA
-**Solution**: Automated ticket creation with field mapping
-**User Benefit**: One-click release to JIRA
-**Status**: ✅ Implemented
-
-**Capabilities**:
-- ✅ JIRA Cloud connection configuration
-- ✅ Test connection and validate credentials
-- ✅ Project discovery and selection
-- ✅ Dynamic field discovery
-- ✅ Automated ticket creation
-- ✅ Batch release (multiple tickets at once)
-
----
-
-#### **F6: Dashboard & Real-Time Metrics**
-**Problem**: No visibility into operations
-**Solution**: Real-time dashboard with key metrics
-**User Benefit**: Always know current state
-**Status**: ✅ Partially Implemented, 🔄 Enhanced (Planned v1.1)
-
-**Current Capabilities**:
-- ✅ Metric cards (Total, Pending, Approved, Released)
-- ✅ Activity feed (last 20 activities)
-- ✅ Quick actions panel
-- 🔄 Request volume chart (Planned)
-- 🔄 Request type distribution (Planned)
-- 🔄 Top requesters table (Planned)
+| Feature | Problem Solved | Key Capabilities | Status | User Impact |
+|---------|---------------|------------------|--------|-------------|
+| **F1: Multi-Channel Request Intake** | Requests scattered across email, Slack, files | • Manual request creation via web form<br>• File upload (PDF, Word, PowerPoint, CSV)<br>• Document text extraction<br>• Email monitoring (IMAP) - Planned<br>• Slack integration - Planned | ✅ Partially Implemented | Never miss a request, all in one place |
+| **F2: AI-Powered Request Analysis** | Manual field extraction takes 5-10 min/ticket | • Request type classification<br>• Field extraction (summary, description, priority)<br>• Dynamic field mapping per JIRA project<br>• Confidence scoring (0-100%)<br>• Fallback to defaults when uncertain | ✅ Implemented | 90% time savings on data entry |
+| **F3: Knowledge Base & Context Retrieval** | No context from past tickets or documentation | • Upload documentation (PDF, Word, PowerPoint)<br>• Semantic search over past tickets<br>• Semantic search over documentation<br>• Link relevant context to requests<br>• JIRA ticket history import - Planned | ✅ Implemented | Consistent tickets with historical context |
+| **F4: Request Review & Approval Queue** | No structured review process | • Queue view (card and table layouts)<br>• Filter by status, source, confidence, priority<br>• Search by keyword<br>• Bulk approve/reject operations<br>• Side-by-side comparison view | ✅ Implemented | Efficient request processing |
+| **F5: JIRA Integration** | Manual ticket creation in JIRA | • JIRA Cloud connection configuration<br>• Test connection and validate credentials<br>• Dynamic field discovery<br>• Automated ticket creation<br>• Batch release (multiple tickets at once) | ✅ Implemented | One-click release to JIRA |
+| **F6: Dashboard & Real-Time Metrics** | No visibility into operations | • Metric cards (Total, Pending, Approved, Released)<br>• Activity feed (last 20 activities)<br>• Quick actions panel<br>• Request volume charts - Planned<br>• Request type distribution - Planned | ✅ Partially Implemented | Always know current state |
 
 ---
 
 ### 6.2 High-Priority Features (v1.1-v1.2)
 
-#### **F7: JIRA Metrics & Lifecycle Tracking**
-**Problem**: No visibility into JIRA progress after release
-**Solution**: Sync JIRA status, track lifecycle metrics
-**User Benefit**: End-to-end visibility without manual checking
-**Status**: 🔄 Planned v1.1
-
-**Planned Capabilities**:
-- Track JIRA issue status changes
-- Measure time in each status
-- Identify bottlenecks in workflow
-- Display lifecycle timeline
-- Calculate avg time to start, resolve, close
-- Issue aging alerts (stuck issues)
-- Resolution rate tracking
-- SLA compliance monitoring
-
-**Metrics Tracked**:
-- Current status, assignee, priority
-- Time to start (move to "In Progress")
-- Time to resolve
-- Time to close
-- Status change count
-- Comment count
-- JIRA time tracking (logged work)
-
----
-
-#### **F8: Email Integration**
-**Problem**: Many requests arrive via email
-**Solution**: Auto-process emails from monitored inbox
-**User Benefit**: Capture all email requests automatically
-**Status**: 🔄 Planned v1.2
-
-**Planned Capabilities**:
-- IMAP inbox monitoring
-- Email parsing (sender, subject, body, attachments)
-- Auto-create requests from emails
-- Mark processed emails
-- Handle attachments
-
----
-
-#### **F9: Slack Integration**
-**Problem**: Many urgent requests via Slack
-**Solution**: Bot listens to channels, creates requests
-**User Benefit**: Capture Slack requests in real-time
-**Status**: 🔄 Planned v1.2
-
-**Planned Capabilities**:
-- Slack webhook integration
-- Listen to specific channels
-- Mention bot to create request
-- Auto-detect urgent keywords
-- Post confirmation back to Slack
-- Link to request in system
+| Feature | Problem Solved | Key Capabilities | Status | User Impact |
+|---------|---------------|------------------|--------|-------------|
+| **F7: JIRA Metrics & Lifecycle Tracking** | No visibility into JIRA progress after release | • Track JIRA issue status changes<br>• Measure time in each status<br>• Display lifecycle timeline<br>• Issue aging alerts (stuck issues)<br>• SLA compliance monitoring<br>• Resolution rate tracking | 🔄 Planned v1.1 | End-to-end visibility without manual checking |
+| **F8: Email Integration** | Many requests arrive via email | • IMAP inbox monitoring<br>• Email parsing (sender, subject, body, attachments)<br>• Auto-create requests from emails<br>• Mark processed emails<br>• Handle attachments | 🔄 Planned v1.2 | Capture all email requests automatically |
+| **F9: Slack Integration** | Many urgent requests via Slack | • Slack webhook integration<br>• Listen to specific channels<br>• Mention bot to create request<br>• Auto-detect urgent keywords<br>• Post confirmation back to Slack | 🔄 Planned v1.2 | Capture Slack requests in real-time |
 
 ---
 
 ### 6.3 Future Features (v1.3+)
 
-#### **F10: PII/PHI Detection & Masking**
-**Problem**: Healthcare/finance requests contain sensitive data
-**Solution**: Auto-detect and mask sensitive information
-**User Benefit**: Compliance (HIPAA, GDPR) without manual redaction
-**Status**: 📋 Planned v1.3
-
----
-
-#### **F11: Pattern Learning & Auto-Approval**
-**Problem**: Same request types processed manually repeatedly
-**Solution**: Learn patterns, auto-approve high-confidence matches
-**User Benefit**: Zero-touch processing for repetitive requests
-**Status**: 📋 Planned v1.4
-
----
-
-#### **F12: AI Assistant Chat Interface**
-**Problem**: Need to click through UI for common tasks
-**Solution**: Natural language chat for operations
-**User Benefit**: "Approve all above 90%" - done!
-**Status**: 📋 Planned v1.4
-
----
-
-#### **F13: Predictive Analytics**
-**Problem**: Can't forecast volume or capacity needs
-**Solution**: ML forecasting for volumes and patterns
-**User Benefit**: Plan staffing, predict busy periods
-**Status**: 📋 Planned v1.5
+| Feature | Problem Solved | Status | User Impact |
+|---------|---------------|--------|-------------|
+| **F10: PII/PHI Detection & Masking** | Healthcare/finance requests contain sensitive data | 📋 Planned v1.3 | Compliance (HIPAA, GDPR) without manual redaction |
+| **F11: Pattern Learning & Auto-Approval** | Same request types processed manually repeatedly | 📋 Planned v1.4 | Zero-touch processing for repetitive requests |
+| **F12: AI Assistant Chat Interface** | Need to click through UI for common tasks | 📋 Planned v1.4 | Natural language operations: "Approve all above 90%" |
+| **F13: Predictive Analytics** | Can't forecast volume or capacity needs | 📋 Planned v1.5 | Plan staffing, predict busy periods |
 
 ---
 
